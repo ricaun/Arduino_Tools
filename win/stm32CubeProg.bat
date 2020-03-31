@@ -27,9 +27,16 @@ exit 1
 :: Parse options
 if "%~1"=="" echo Not enough arguments! & set ERROR=2 & goto :usage
 if "%~2"=="" echo Not enough arguments! & set ERROR=2 & goto :usage
+if "%~3"=="" echo Not enough arguments! & set ERROR=2 & goto :usage
 
 set PROTOCOL=%~1
 set FILEPATH=%~2
+set OFFSET=%~3
+
+:: Add offset on address
+SET /A ADDOFF=%ADDRESS%+%OFFSET%
+cmd /C exit %ADDOFF%
+set "ADDRESS=0x%=ExitCode%"
 
 :: Protocol
 :: 1x: Erase all sectors
@@ -54,8 +61,8 @@ set MODE=mode=UR
 goto :opt
 
 :SERIAL
-if "%~3"=="" set ERROR=3 & goto :usage
-set PORT=%~3
+if "%~4"=="" set ERROR=3 & goto :usage
+set PORT=%~4
 shift
 goto :opt
 
@@ -64,6 +71,7 @@ set PORT=USB1
 goto :opt
 
 :opt
+shift
 shift
 shift
 if "%~1"=="" goto :prog
@@ -84,6 +92,8 @@ exit 0
   echo    Note: prefix it by 1 to erase all sectors
   echo          Ex: 10 erase all sectors using SWD interface
   echo file_path: file path name to be downloaded: (bin, hex)
+  echo Offset:
+  echo   Address offset
   echo Options:
   echo   For SWD and DFU: no mandatory options
   echo   For Serial: ^<com_port^>
